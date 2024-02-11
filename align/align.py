@@ -128,12 +128,20 @@ class NeedlemanWunsch:
         
         # TODO: Initialize matrix private attributes for use in alignment
         # create matrices for alignment scores, gaps, and backtracing
-        pass
-
-        
+        self._align_matrix = np.zeros([len(seqA) + 1, len(seqB) + 1])
+        self._gapA_matrix = np.zeros([len(seqA) + 1, len(seqB) + 1])
+        self._gapB_matrix = np.zeros([len(seqA) + 1, len(seqB) + 1])
         # TODO: Implement global alignment here
-        pass      		
-        		    
+
+        for i in range(1, self._align_matrix.shape[0]):
+            for j in range(1, self._align_matrix.shape[1]):
+                match_mismatch = self.sub_dict[i][j]
+                gapA = self.gap_open if (self._gapA_matrix[i-1][j] == 0) else self.gap_extend
+                gapB = self.gap_open if (self._gapB_matrix[i][j-1] == 0) else self.gap_extend
+                self._align_matrix[i][j] = max(self._align_matrix[i-1][j] + gapA, self._align_matrix[i][j-1] + gapB, self._align_matrix[i-1][j-1] + match_mismatch)
+                self._gapA_matrix[i-1][j] = gapA
+                self._gapB_matrix[i][j-1] = gapB
+        self.alignment_score = self._align_matrix[len(seqA)][len(seqB)]
         return self._backtrace()
 
     def _backtrace(self) -> Tuple[float, str, str]:
@@ -150,8 +158,38 @@ class NeedlemanWunsch:
          	(alignment score, seqA alignment, seqB alignment) : Tuple[float, str, str]
          		the score and corresponding strings for the alignment of seqA and seqB
         """
-        pass
-
+        i = len(self.seqA_align)
+        j = len(self.seqB_align)
+        seqa = []
+        seqb = []
+        while ((i != 0) and (j != 0)):
+            if i == 0:
+                # j is not 0
+                while j != 0:
+                    seqa.append("-")
+                    seqb.append(self._seqB[j-1])
+                    j = j - 1
+            elif j == 0:
+                # i is not 0
+                while i != 0:
+                    seqa.append(self._seqA[i-1])
+                    seqb.append("-")
+                    i = i - 1
+            else:
+                seqa.append(self._seqA[i-1])
+                seqb.append(self._seqB[j-1])
+                shortest_path = min(self._align_matrix[i-1][j-1], self._align_matrix[i-1][j], self._align_matrix[i][j-1])
+                if shortest_path == self._align_matrix[i-1][j-1]:
+                    i = i - 1
+                    j = j - 1
+                elif shortest_path == self._align_matrix[i-1][j]:
+                    i = i - 1
+                else:
+                    j = j - 1
+        seqa.reverse()
+        seqb.reverse()
+        self.seqA_align = ("").join(seqa)
+        self.seqB_align = ("").join(seqb)
         return (self.alignment_score, self.seqA_align, self.seqB_align)
 
 
