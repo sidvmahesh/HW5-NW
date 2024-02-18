@@ -147,13 +147,13 @@ class NeedlemanWunsch:
                 gapB = self.gap_open + self.gap_extend if (self._gapB_matrix[i][j-1] == 0) else self.gap_extend# + self._gapB_matrix[i][j-1]
                 self._align_matrix[i][j] = max(self._align_matrix[i-1][j] + gapA, self._align_matrix[i][j-1] + gapB, self._align_matrix[i-1][j-1] + match_mismatch)
                 if self._align_matrix[i][j] !=  self._align_matrix[i-1][j-1] + match_mismatch:
-                    self._gapA_matrix[i][j] = gapA if (self._align_matrix[i][j] == self._align_matrix[i-1][j] + gapA) else 0
-                    self._gapB_matrix[i][j] = gapB if (self._align_matrix[i][j] == self._align_matrix[i][j-1] + gapB) else 0
+                    self._gapA_matrix[i][j] = gapA + self._gapA_matrix[i-1][j] if (self._align_matrix[i][j] == self._align_matrix[i-1][j] + gapA) else 0
+                    self._gapB_matrix[i][j] = gapB + self._gapB_matrix[i][j-1] if (self._align_matrix[i][j] == self._align_matrix[i][j-1] + gapB) else 0
         self.alignment_score = self._align_matrix[len(seqA)][len(seqB)]
         print()
-        print(seqA)
-        print(seqB)
-        print({(i, j): self.sub_dict[(i, j)] for i in seqA for j in seqB})
+        # print(seqA)
+        # print(seqB)
+        # print({(i, j): self.sub_dict[(i, j)] for i in seqA for j in seqB})
         print(self._align_matrix)
         print(self._gapA_matrix)
         print(self._gapB_matrix)
@@ -178,7 +178,7 @@ class NeedlemanWunsch:
         seqa = []
         seqb = []
         while ((i != 0) and (j != 0)):
-            print(i, j)
+            # print(i, j)
             if i == 0:
                 # j is not 0
                 while j != 0:
