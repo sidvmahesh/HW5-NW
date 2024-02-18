@@ -150,13 +150,6 @@ class NeedlemanWunsch:
                     self._gapA_matrix[i][j] = gapA + self._gapA_matrix[i-1][j] if (self._align_matrix[i][j] == self._align_matrix[i-1][j] + gapA) else 0
                     self._gapB_matrix[i][j] = gapB + self._gapB_matrix[i][j-1] if (self._align_matrix[i][j] == self._align_matrix[i][j-1] + gapB) else 0
         self.alignment_score = self._align_matrix[len(seqA)][len(seqB)]
-        print()
-        # print(seqA)
-        # print(seqB)
-        # print({(i, j): self.sub_dict[(i, j)] for i in seqA for j in seqB})
-        print(self._align_matrix)
-        print(self._gapA_matrix)
-        print(self._gapB_matrix)
         return self._backtrace()
 
     def _backtrace(self) -> Tuple[float, str, str]:
