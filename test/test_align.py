@@ -19,7 +19,14 @@ def test_nw_alignment():
     assert score == 4
     assert seq1_align == "MYQR"
     assert seq2_align == "M-QR"
-    
+    # Check the three matrices
+    assert nw._gapB_matrix[2][3] == -11 # Since we know the second character of seq2 is a gap, after subsequently aligning the two M's
+    for i in range(1, len(seq1)):
+        for j in range(1, len(seq2)):
+            gapA = -11 if nw._gapA_matrix[i-1][j] == 0 else - 1
+            gapB = -11 if nw._gapB_matrix[i][j-1] == 0 else - 1
+            match_mismatch = nw.sub_dict[(seq1[i-1], seq2[j-1])]
+            assert nw._align_matrix[i][j] == max(nw._align_matrix[i-1][j] + gapA, nw._align_matrix[i][j-1] + gapB, nw._align_matrix[i-1][j-1] + match_mismatch)
 
 def test_nw_backtrace():
     """
@@ -36,7 +43,27 @@ def test_nw_backtrace():
     assert score == 17
     assert seq3_align == "MAVHQLIRRP"
     assert seq4_align == "M---QLIRHP"
-
-
-
+    seqA_list = [] # Each char will be | if there is no gap, and - for a gap
+    seqB_list = [] # Each char will be | if there is no gap, and - for a gap
+    i, j = (len(seq3), len(seq4))
+    while (i != 0) and (j != 0):
+        if nw._gapA_matrix[i][j] != 0:
+            seqA_list.append("|")
+            seqB_list.append("-")
+            i = i - 1
+        elif nw._gapB_matrix[i][j] != 0:
+            seqA_list.append("-")
+            seqB_list.append("|")
+            j = j - 1
+        else:
+            seqA_list.append("|")
+            seqB_list.append("|")
+            i = i - 1
+            j = j - 1
+    seqA_list.reverse()
+    seqB_list.reverse()
+    assert len(seqA_list) == len(seqB_list) # Assert the length of the alignment strings are equal for both sequences
+    for i in range(len(seqA_list)):
+        assert seqA_list[i] == "-" if seq3_align[i] == "-" else "|"
+        assert seqB_list[i] == "-" if seq4_align[i] == "-" else "|"
 
